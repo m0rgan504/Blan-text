@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlindTest</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ÉCRAN 1 — ACCUEIL -->
+  <div class="screen active" id="screenHome">
+    <div class="home-bg"></div>
+    <div class="home-inner">
+      <div class="home-header">
+        <div class="logo-mark">BT</div>
+        <h1 class="title-main">BLIND<span>TEST</span></h1>
+        <p class="subtitle">Crée tes joueurs, puis lance la partie !</p>
+      </div>
+      <div class="players-section">
+        <h2 class="section-label">JOUEURS</h2>
+        <div class="players-grid" id="playersGrid"></div>
+        <button class="btn-add-player" id="btnAddPlayer">+ Ajouter un joueur</button>
+      </div>
+      <div class="home-actions">
+        <button class="btn-primary" id="btnGoSetup" disabled>CRÉER UNE PARTIE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 — SETUP QUESTIONS -->
+  <div class="screen" id="screenSetup">
+    <div class="setup-inner">
+      <div class="setup-topbar">
+        <button class="btn-back" id="btnBackHome">← Retour</button>
+        <h2 class="setup-title">QUESTIONS</h2>
+        <span class="q-count" id="qCount">0 question(s)</span>
+      </div>
+      <div class="questions-list" id="questionsList"></div>
+      <div class="setup-add">
+        <button class="btn-add-q" id="btnAddQuestion">+ Nouvelle question</button>
+      </div>
+      <div class="setup-footer">
+        <button class="btn-primary" id="btnStartGame" disabled>▶ LANCER LA PARTIE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 — JEU -->
+  <div class="screen" id="screenGame">
+    <div class="game-inner">
+      <div class="scoreboard" id="scoreboard"></div>
+      <div class="question-block">
+        <div class="q-meta">
+          <span class="q-num" id="qNum">Q1</span>
+          <span class="q-total" id="qTotal">/ 1</span>
+        </div>
+        <p class="q-text" id="qText">—</p>
+      </div>
+      <div class="answers-grid" id="answersGrid"></div>
+      <div class="game-footer">
+        <p class="keyboard-hint" id="keyboardHint">⌨️ Touches 1–9, A, B, C pour répondre</p>
+        <button class="btn-skip" id="btnSkip">Passer ⟶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 4 — FIN -->
+  <div class="screen" id="screenEnd">
+    <div class="end-inner">
+      <div class="end-trophy">🏆</div>
+      <h2 class="end-title">FIN DE PARTIE !</h2>
+      <div class="final-scores" id="finalScores"></div>
+      <div class="end-actions">
+        <button class="btn-primary" id="btnReplay">↺ Rejouer</button>
+        <button class="btn-secondary" id="btnHomeEnd">⌂ Accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Ajouter joueur -->
+  <div class="modal-overlay" id="modalPlayer">
+    <div class="modal">
+      <h3>Nouveau joueur</h3>
+      <input type="text" class="modal-input" id="playerNameInput" placeholder="Prénom..." maxlength="20" />
+      <div class="avatar-picker" id="avatarPicker"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelPlayer">Annuler</button>
+        <button class="btn-confirm" id="btnConfirmPlayer">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Ajouter/éditer question -->
+  <div class="modal-overlay" id="modalQuestion">
+    <div class="modal modal-large">
+      <h3 id="modalQTitle">Nouvelle question</h3>
+      <input type="text" class="modal-input" id="qTextInput" placeholder="Question / indice du blind test..." maxlength="120" />
+      <div class="answers-setup" id="answersSetup"></div>
+      <p class="modal-hint">Clique sur ⭐ pour marquer la bonne réponse</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelQ">Annuler</button>
+        <button class="btn-confirm" id="btnConfirmQ">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Quel joueur a répondu ? -->
+  <div class="modal-overlay" id="modalWhoAnswered">
+    <div class="modal">
+      <h3 class="who-title" id="whoTitle">Qui a répondu ?</h3>
+      <p class="who-answer" id="whoAnswer"></p>
+      <div class="who-players" id="whoPlayers"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelWho">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+  </html>
