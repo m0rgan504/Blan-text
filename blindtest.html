@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlindTest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080810;
+      --surface: #12121e;
+      --surface2: #1a1a2e;
+      --border: #2a2a44;
+      --accent: #f0c040;
+      --accent2: #e0a820;
+      --green: #4ade80;
+      --red: #f87171;
+      --text: #f0eeff;
+      --muted: #8888aa;
+      --dim: #44445a;
+      --r: 12px;
+      --fd: 'Bebas Neue', Impact, sans-serif;
+      --fb: 'Syne', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--fb); }
+
+    /* ── SCREENS ── */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: block; }
+
+    /* ── HOME ── */
+    .home-inner {
+      max-width: 640px; margin: 0 auto;
+      padding: 48px 20px 80px;
+      display: flex; flex-direction: column; gap: 36px;
+    }
+    .home-header { text-align: center; }
+    .logo-mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 52px; height: 52px; background: var(--accent); color: #080810;
+      font-family: var(--fd); font-size: 20px; letter-spacing: 2px;
+      border-radius: 12px; margin-bottom: 14px;
+    }
+    .title-main { font-family: var(--fd); font-size: clamp(48px,11vw,82px); letter-spacing: 5px; line-height: .95; }
+    .title-main span { color: var(--accent); }
+    .subtitle { margin-top: 10px; font-size: 14px; color: var(--muted); }
+    .section-label { font-family: var(--fd); font-size: 12px; letter-spacing: 3px; color: var(--muted); margin-bottom: 12px; }
+    .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 10px; margin-bottom: 12px; }
+    .player-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 14px 10px; text-align: center; position: relative;
+    }
+    .player-avatar { font-size: 26px; margin-bottom: 6px; }
+    .player-name { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player-del {
+      position: absolute; top: 5px; right: 7px; background: none; border: none;
+      color: var(--dim); cursor: pointer; font-size: 13px; padding: 2px 4px;
+    }
+    .player-del:hover { color: var(--red); }
+
+    /* ── BUTTONS ── */
+    .btn-dashed {
+      width: 100%; background: none; border: 1px dashed var(--border); border-radius: var(--r);
+      padding: 13px; color: var(--muted); font-family: var(--fb); font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-dashed:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary {
+      width: 100%; background: var(--accent); color: #080810; border: none;
+      border-radius: var(--r); padding: 16px; font-family: var(--fd);
+      font-size: 19px; letter-spacing: 3px; cursor: pointer;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--accent2); }
+    .btn-primary:disabled { opacity: .3; cursor: not-allowed; }
+    .btn-secondary {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 14px 24px; font-family: var(--fd);
+      font-size: 17px; letter-spacing: 2px; cursor: pointer;
+    }
+    .btn-back {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 14px; color: var(--muted); font-family: var(--fb);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn-back:hover { color: var(--text); }
+
+    /* ── CONFIG ── */
+    .config-inner { max-width: 700px; margin: 0 auto; padding: 28px 20px 80px; display: flex; flex-direction: column; gap: 30px; }
+    .topbar { display: flex; align-items: center; gap: 16px; }
+    .screen-title { font-family: var(--fd); font-size: 26px; letter-spacing: 4px; flex: 1; }
+    .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 10px; }
+    .cat-card {
+      background: var(--surface); border: 2px solid var(--border); border-radius: var(--r);
+      padding: 14px 10px; text-align: center; cursor: pointer; user-select: none;
+    }
+    .cat-card:hover { border-color: var(--accent); }
+    .cat-card.selected { border-color: var(--accent); background: rgba(240,192,64,.08); }
+    .cat-icon { font-size: 26px; margin-bottom: 5px; }
+    .cat-name { font-size: 13px; font-weight: 700; }
+    .cat-check { font-size: 11px; color: var(--accent); margin-top: 4px; min-height: 15px; }
+
+    .year-inputs { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .year-field { display: flex; flex-direction: column; gap: 4px; }
+    .year-field label { font-size: 11px; color: var(--muted); }
+    .year-field input {
+      width: 86px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px; color: var(--text); font-family: var(--fb);
+      font-size: 16px; font-weight: 700; outline: none; text-align: center;
+    }
+    .year-field input:focus { border-color: var(--accent); }
+    .year-sep { font-size: 18px; color: var(--dim); margin-top: 16px; }
+    .year-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+    .preset-btn {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 6px 13px; color: var(--muted); font-family: var(--fb); font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .nb-ui { display: flex; align-items: center; gap: 20px; }
+    .nb-btn {
+      width: 42px; height: 42px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 50%; color: var(--text); font-size: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+    .nb-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .nb-val { font-family: var(--fd); font-size: 46px; color: var(--accent); min-width: 58px; text-align: center; }
+    .nb-hint { font-size: 12px; color: var(--dim); margin-top: 6px; }
+
+    .diff-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .diff-btn {
+      flex: 1; min-width: 80px; background: var(--surface); border: 2px solid var(--border);
+      border-radius: var(--r); padding: 11px 8px; color: var(--muted);
+      font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .diff-btn:hover { border-color: var(--accent); color: var(--text); }
+    .diff-btn.active { border-color: var(--accent); background: rgba(240,192,64,.1); color: var(--accent); }
+
+    /* ── LOADING ── */
+    .loading-inner {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; gap: 22px; padding: 40px;
+    }
+    .loader-ring {
+      width: 68px; height: 68px; border: 4px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-family: var(--fd); font-size: 30px; letter-spacing: 3px; color: var(--accent); }
+    .loading-sub { font-size: 14px; color: var(--muted); }
+    .loading-steps { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; }
+    .loading-step {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 14px; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 10px;
+    }
+    .loading-step.done { color: var(--green); border-color: rgba(74,222,128,.3); }
+
+    /* ── GAME ── */
+    .game-inner { max-width: 840px; margin: 0 auto; padding: 14px; min-height: 100vh; display: flex; flex-direction: column; gap: 12px; }
+    .scoreboard { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .score-chip {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 30px;
+      padding: 6px 13px; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700;
+    }
+    .score-chip.eliminated { opacity: .3; text-decoration: line-through; }
+    .chip-score { color: var(--accent); font-family: var(--fd); font-size: 17px; }
+    .question-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 18px 22px; text-align: center;
+    }
+    .q-meta { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+    .q-cat-badge { font-size: 20px; }
+    .q-num { font-family: var(--fd); font-size: 28px; color: var(--accent); letter-spacing: 2px; }
+    .q-total { font-size: 13px; color: var(--muted); }
+    .q-text { font-size: clamp(14px,2.5vw,20px); font-weight: 700; line-height: 1.4; }
+    .answers-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .answer-btn {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 10px 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+      text-align: left; min-height: 52px;
+    }
+    .answer-btn:hover:not(:disabled):not(.ok):not(.ko) { background: var(--surface2); border-color: var(--accent); }
+    .answer-btn:disabled { cursor: not-allowed; }
+    .key-badge { font-family: var(--fd); font-size: 15px; color: var(--accent); min-width: 20px; flex-shrink: 0; }
+    .ans-text { font-size: 13px; font-weight: 600; line-height: 1.3; flex: 1; }
+    .answer-btn.ok { background: rgba(74,222,128,.12); border-color: var(--green); }
+    .answer-btn.ok .ans-text { color: var(--green); }
+    .answer-btn.ko { background: rgba(248,113,113,.08); border-color: rgba(248,113,113,.3); opacity: .5; }
+    .game-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .kb-hint { font-size: 12px; color: var(--dim); }
+    .btn-skip {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 18px; color: var(--muted); font-family: var(--fb); font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn-skip:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── END ── */
+    .end-inner {
+      max-width: 480px; margin: 0 auto; padding: 60px 20px;
+      text-align: center; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+    }
+    .end-trophy { font-size: 68px; animation: bounce 1s ease infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    .end-title { font-family: var(--fd); font-size: 48px; letter-spacing: 4px; color: var(--accent); }
+    .final-scores { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .final-row {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 13px 18px; display: flex; align-items: center; gap: 12px;
+    }
+    .final-rank { font-family: var(--fd); font-size: 20px; color: var(--muted); min-width: 28px; }
+    .final-row.r1 .final-rank { color: var(--accent); }
+    .final-row.r2 .final-rank { color: #c0c0c0; }
+    .final-row.r3 .final-rank { color: #cd7f32; }
+    .final-avatar { font-size: 24px; }
+    .final-name { flex: 1; font-weight: 700; font-size: 15px; text-align: left; }
+    .final-pts { font-family: var(--fd); font-size: 24px; color: var(--accent); }
+    .end-actions { display: flex; gap: 12px; width: 100%; }
+    .end-actions .btn-primary, .end-actions .btn-secondary { flex: 1; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.82);
+      z-index: 9999;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+      visibility: hidden; opacity: 0;
+      transition: opacity .2s, visibility .2s;
+    }
+    .modal-overlay.open { visibility: visible; opacity: 1; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      padding: 26px 22px 20px; width: 100%; max-width: 370px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-family: var(--fd); font-size: 22px; letter-spacing: 2px; margin-bottom: 16px; }
+    .modal-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 11px 13px; color: var(--text); font-family: var(--fb); font-size: 15px; font-weight: 600;
+      outline: none; margin-bottom: 14px; display: block;
+    }
+    .modal-input:focus { border-color: var(--accent); }
+    .modal-input::placeholder { color: var(--dim); font-weight: 400; }
+    .avatar-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+    .avatar-opt {
+      width: 38px; height: 38px; background: var(--bg); border: 2px solid var(--border);
+      border-radius: 9px; cursor: pointer; font-size: 19px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-opt:hover { border-color: var(--accent); }
+    .avatar-opt.selected { border-color: var(--accent); background: rgba(240,192,64,.1); }
+    .who-answer { font-size: 17px; font-weight: 700; color: var(--accent); margin-bottom: 16px; text-align: center; }
+    .who-players { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px,1fr)); gap: 8px; margin-bottom: 14px; }
+    .who-player-btn {
+      background: var(--bg); border: 2px solid var(--border); border-radius: var(--r);
+      padding: 11px 6px; cursor: pointer; text-align: center;
+    }
+    .who-player-btn:hover:not(:disabled) { border-color: var(--accent); }
+    .who-player-btn:disabled { opacity: .3; cursor: not-allowed; }
+    .wp-avatar { font-size: 22px; margin-bottom: 3px; }
+    .wp-name { font-size: 11px; font-weight: 700; }
+    .error-msg { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+    .btn-cancel {
+      background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 18px; font-family: var(--fb); font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-cancel:hover { color: var(--text); }
+    .btn-confirm {
+      background: var(--accent); color: #080810; border: none;
+      border-radius: 8px; padding: 10px 18px; font-family: var(--fb); font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-confirm:hover { background: var(--accent2); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 580px) {
+      .answers-grid { grid-template-columns: repeat(2,1fr); }
+      .kb-hint { display: none; }
+      .game-inner { padding: 8px; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ÉCRAN 1 — ACCUEIL -->
+  <div class="screen active" id="screenHome">
+    <div class="home-inner">
+      <div class="home-header">
+        <div class="logo-mark">BT</div>
+        <h1 class="title-main">BLIND<span>TEST</span></h1>
+        <p class="subtitle">Quiz multijoueur — choisis tes catégories et lance la partie !</p>
+      </div>
+      <div>
+        <h2 class="section-label">JOUEURS</h2>
+        <div class="players-grid" id="playersGrid"></div>
+        <button class="btn-dashed" id="btnAddPlayer">+ Ajouter un joueur</button>
+      </div>
+      <button class="btn-primary" id="btnGoConfig" disabled>CONFIGURER LA PARTIE →</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 — CONFIG -->
+  <div class="screen" id="screenConfig">
+    <div class="config-inner">
+      <div class="topbar">
+        <button class="btn-back" id="btnBackHome">← Retour</button>
+        <span class="screen-title">CONFIGURATION</span>
+      </div>
+      <div>
+        <h3 class="section-label">CATÉGORIES</h3>
+        <div class="categories-grid" id="categoriesGrid"></div>
+      </div>
+      <div>
+        <h3 class="section-label">FOURCHETTE D'ANNÉES</h3>
+        <div class="year-inputs">
+          <div class="year-field">
+            <label>De</label>
+            <input type="number" id="yearFrom" min="1950" max="2025" value="2000" />
+          </div>
+          <div class="year-sep">→</div>
+          <div class="year-field">
+            <label>À</label>
+            <input type="number" id="yearTo" min="1950" max="2025" value="2024" />
+          </div>
+        </div>
+        <div class="year-presets">
+          <button class="preset-btn" data-from="1970" data-to="1989">70s–80s</button>
+          <button class="preset-btn" data-from="1990" data-to="1999">90s</button>
+          <button class="preset-btn" data-from="2000" data-to="2009">2000s</button>
+          <button class="preset-btn" data-from="2010" data-to="2019">2010s</button>
+          <button class="preset-btn" data-from="2020" data-to="2025">Récent</button>
+          <button class="preset-btn" data-from="1970" data-to="2025">Tout</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="section-label">NOMBRE DE QUESTIONS</h3>
+        <div class="nb-ui">
+          <button class="nb-btn" id="btnNbMinus">−</button>
+          <span class="nb-val" id="nbVal">10</span>
+          <button class="nb-btn" id="btnNbPlus">+</button>
+        </div>
+        <p class="nb-hint">questions par partie</p>
+      </div>
+      <div>
+        <h3 class="section-label">DIFFICULTÉ</h3>
+        <div class="diff-row">
+          <button class="diff-btn active" data-diff="facile">😊 Facile</button>
+          <button class="diff-btn" data-diff="moyen">🎯 Moyen</button>
+          <button class="diff-btn" data-diff="difficile">🔥 Difficile</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnGenerate">▶ LANCER LA PARTIE</button>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 — CHARGEMENT -->
+  <div class="screen" id="screenLoading">
+    <div class="loading-inner">
+      <div class="loader-ring"></div>
+      <p class="loading-title" id="loadingTitle">Préparation…</p>
+      <p class="loading-sub" id="loadingSub"></p>
+      <div class="loading-steps" id="loadingSteps"></div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 4 — JEU -->
+  <div class="screen" id="screenGame">
+    <div class="game-inner">
+      <div class="scoreboard" id="scoreboard"></div>
+      <div class="question-block">
+        <div class="q-meta">
+          <span class="q-cat-badge" id="qCatBadge">🎵</span>
+          <span class="q-num" id="qNum">Q1</span>
+          <span class="q-total" id="qTotal">/ 10</span>
+        </div>
+        <p class="q-text" id="qText">—</p>
+      </div>
+      <div class="answers-grid" id="answersGrid"></div>
+      <div class="game-footer">
+        <p class="kb-hint">⌨️ Touches 1–9, A, B, C</p>
+        <button class="btn-skip" id="btnSkip">Passer ⟶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 5 — FIN -->
+  <div class="screen" id="screenEnd">
+    <div class="end-inner">
+      <div class="end-trophy">🏆</div>
+      <h2 class="end-title">FIN !</h2>
+      <div class="final-scores" id="finalScores"></div>
+      <div class="end-actions">
+        <button class="btn-primary" id="btnReplay">↺ Rejouer</button>
+        <button class="btn-secondary" id="btnHomeEnd">⌂ Accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Ajouter joueur -->
+  <div class="modal-overlay" id="modalPlayer">
+    <div class="modal">
+      <h3>Nouveau joueur</h3>
+      <input type="text" class="modal-input" id="playerNameInput" placeholder="Prénom..." maxlength="20" autocomplete="off" />
+      <div class="avatar-picker" id="avatarPicker"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelPlayer">Annuler</button>
+        <button class="btn-confirm" id="btnConfirmPlayer">Ajouter ✓</button>
+      </div>
+          <div class="topbar">
+        <button class="btn-back" id="btnBackHome">← Retour</button>
+        <h2 class="screen-title">CONFIGURATION</h2>
+      </div>
+
+      <!-- Catégories -->
+      <div class="section-block">
+        <h3 class="section-label">CATÉGORIES</h3>
+        <div class="categories-grid" id="categoriesGrid"></div>
+      </div>
+
+      <!-- Fourchette d'années -->
+      <div class="section-block" id="yearRangeBlock">
+        <h3 class="section-label">FOURCHETTE D'ANNÉES</h3>
+        <div class="year-range-ui">
+          <div class="year-inputs">
+            <div class="year-field">
+              <label>De</label>
+              <input type="number" id="yearFrom" min="1950" max="2025" value="2000" />
+            </div>
+            <div class="year-sep">→</div>
+            <div class="year-field">
+              <label>À</label>
+              <input type="number" id="yearTo" min="1950" max="2025" value="2024" />
+            </div>
+          </div>
+          <div class="year-presets">
+            <button class="preset-btn" data-from="1970" data-to="1989">70s–80s</button>
+            <button class="preset-btn" data-from="1990" data-to="1999">90s</button>
+            <button class="preset-btn" data-from="2000" data-to="2009">2000s</button>
+            <button class="preset-btn" data-from="2010" data-to="2019">2010s</button>
+            <button class="preset-btn" data-from="2020" data-to="2025">Récent</button>
+            <button class="preset-btn" data-from="1970" data-to="2025">Tout</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nombre de questions -->
+      <div class="section-block">
+        <h3 class="section-label">NOMBRE DE QUESTIONS</h3>
+        <div class="nb-questions-ui">
+          <button class="nb-btn" id="btnNbMinus">−</button>
+          <span class="nb-val" id="nbVal">10</span>
+          <button class="nb-btn" id="btnNbPlus">+</button>
+        </div>
+        <p class="nb-hint">questions générées par l'IA</p>
+      </div>
+
+      <!-- Difficulté -->
+      <div class="section-block">
+        <h3 class="section-label">DIFFICULTÉ</h3>
+        <div class="diff-row" id="diffRow">
+          <button class="diff-btn active" data-diff="facile">😊 Facile</button>
+          <button class="diff-btn" data-diff="moyen">🎯 Moyen</button>
+          <button class="diff-btn" data-diff="difficile">🔥 Difficile</button>
+        </div>
+      </div>
+
+      <div class="config-footer">
+        <button class="btn-primary" id="btnGenerate">✨ GÉNÉRER LES QUESTIONS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ÉCRAN 3 — GÉNÉRATION ══ -->
+  <div class="screen" id="screenLoading">
+    <div class="loading-inner">
+      <div class="loader-ring"></div>
+      <p class="loading-title" id="loadingTitle">Génération en cours…</p>
+      <p class="loading-sub" id="loadingSub">L'IA prépare vos questions</p>
+      <div class="loading-steps" id="loadingSteps"></div>
+    </div>
+  </div>
+
+  <!-- ══ ÉCRAN 4 — JEU ══ -->
+  <div class="screen" id="screenGame">
+    <div class="game-inner">
+      <div class="scoreboard" id="scoreboard"></div>
+      <div class="question-block">
+        <div class="q-meta">
+          <span class="q-cat-badge" id="qCatBadge">🎵</span>
+          <span class="q-num" id="qNum">Q1</span>
+          <span class="q-total" id="qTotal">/ 10</span>
+        </div>
+        <p class="q-text" id="qText">—</p>
+      </div>
+      <div class="answers-grid" id="answersGrid"></div>
+      <div class="game-footer">
+        <p class="keyboard-hint">⌨️ Touches 1–9, A, B, C</p>
+        <button class="btn-skip" id="btnSkip">Passer ⟶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ÉCRAN 5 — FIN ══ -->
+  <div class="screen" id="screenEnd">
+    <div class="end-inner">
+      <div class="end-trophy">🏆</div>
+      <h2 class="end-title">FIN DE PARTIE !</h2>
+      <div class="final-scores" id="finalScores"></div>
+      <div class="end-actions">
+        <button class="btn-primary" id="btnReplay">↺ Même config</button>
+        <button class="btn-secondary" id="btnHomeEnd">⌂ Accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL — Ajouter joueur ══ -->
+  <div class="modal-overlay" id="modalPlayer">
+    <div class="modal">
+      <h3>Nouveau joueur</h3>
+      <input type="text" class="modal-input" id="playerNameInput" placeholder="Prénom..." maxlength="20" />
+      <div class="avatar-picker" id="avatarPicker"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelPlayer">Annuler</button>
+        <button class="btn-confirm" id="btnConfirmPlayer">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL — Qui a répondu ? ══ -->
+  <div class="modal-overlay" id="modalWho">
+    <div class="modal">
+      <h3>Qui a répondu ?</h3>
+      <p class="who-answer" id="whoAnswer"></p>
+      <div class="who-players" id="whoPlayers"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelWho">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL — Erreur ══ -->
+  <div class="modal-overlay" id="modalError">
+    <div class="modal">
+      <h3>⚠️ Erreur</h3>
+      <p class="error-msg" id="errorMsg"></p>
+      <div class="modal-actions">
+        <button class="btn-confirm" id="btnErrorOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 — SETUP QUESTIONS -->
+  <div class="screen" id="screenSetup">
+    <div class="setup-inner">
+      <div class="setup-topbar">
+        <button class="btn-back" id="btnBackHome">← Retour</button>
+        <h2 class="setup-title">QUESTIONS</h2>
+        <span class="q-count" id="qCount">0 question(s)</span>
+      </div>
+      <div class="questions-list" id="questionsList"></div>
+      <div class="setup-add">
+        <button class="btn-add-q" id="btnAddQuestion">+ Nouvelle question</button>
+      </div>
+      <div class="setup-footer">
+        <button class="btn-primary" id="btnStartGame" disabled>▶ LANCER LA PARTIE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 3 — JEU -->
+  <div class="screen" id="screenGame">
+    <div class="game-inner">
+      <div class="scoreboard" id="scoreboard"></div>
+      <div class="question-block">
+        <div class="q-meta">
+          <span class="q-num" id="qNum">Q1</span>
+          <span class="q-total" id="qTotal">/ 1</span>
+        </div>
+        <p class="q-text" id="qText">—</p>
+      </div>
+      <div class="answers-grid" id="answersGrid"></div>
+      <div class="game-footer">
+        <p class="keyboard-hint" id="keyboardHint">⌨️ Touches 1–9, A, B, C pour répondre</p>
+        <button class="btn-skip" id="btnSkip">Passer ⟶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 4 — FIN -->
+  <div class="screen" id="screenEnd">
+    <div class="end-inner">
+      <div class="end-trophy">🏆</div>
+      <h2 class="end-title">FIN DE PARTIE !</h2>
+      <div class="final-scores" id="finalScores"></div>
+      <div class="end-actions">
+        <button class="btn-primary" id="btnReplay">↺ Rejouer</button>
+        <button class="btn-secondary" id="btnHomeEnd">⌂ Accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Ajouter joueur -->
+  <div class="modal-overlay" id="modalPlayer">
+    <div class="modal">
+      <h3>Nouveau joueur</h3>
+      <input type="text" class="modal-input" id="playerNameInput" placeholder="Prénom..." maxlength="20" />
+      <div class="avatar-picker" id="avatarPicker"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelPlayer">Annuler</button>
+        <button class="btn-confirm" id="btnConfirmPlayer">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Ajouter/éditer question -->
+  <div class="modal-overlay" id="modalQuestion">
+    <div class="modal modal-large">
+      <h3 id="modalQTitle">Nouvelle question</h3>
+      <input type="text" class="modal-input" id="qTextInput" placeholder="Question / indice du blind test..." maxlength="120" />
+      <div class="answers-setup" id="answersSetup"></div>
+      <p class="modal-hint">Clique sur ⭐ pour marquer la bonne réponse</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelQ">Annuler</button>
+        <button class="btn-confirm" id="btnConfirmQ">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL — Quel joueur a répondu ? -->
+  <div class="modal-overlay" id="modalWhoAnswered">
+    <div class="modal">
+      <h3 class="who-title" id="whoTitle">Qui a répondu ?</h3>
+      <p class="who-answer" id="whoAnswer"></p>
+      <div class="who-players" id="whoPlayers"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelWho">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+  </html>
